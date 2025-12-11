@@ -14,8 +14,19 @@ resource "aws_security_group" "alb" {
   description = "ALB SG"
   vpc_id      = data.aws_vpc.default.id
 
-  ingress { from_port = 80 to_port = 80 protocol = "tcp" cidr_blocks = ["0.0.0.0/0"] }
-  egress  { from_port = 0  to_port = 0  protocol = "-1"  cidr_blocks = ["0.0.0.0/0"] }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_lb" "demo" {
@@ -43,7 +54,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ---- v3-style condition (this is the intentional "old" shape) ----
+# v3-style condition (THIS is what will break after upgrade)
 resource "aws_lb_listener_rule" "host_rule" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 10
@@ -54,7 +65,7 @@ resource "aws_lb_listener_rule" "host_rule" {
   }
 
   condition {
-    field  = "host-header"         # <-- v3 shape
-    values = ["app.example.com"]   # <-- v3 shape
+    field  = "host-header"
+    values = ["app.example.com"]
   }
 }
