@@ -3,7 +3,7 @@ data "aws_vpc" "default" {
 }
 
 # v2.x uses aws_subnet_ids (plural data source arrived later)
-data "aws_subnets" "default" {
+data "aws_subnet_ids" "default" {
   vpc_id = data.aws_vpc.default.id
 }
 
