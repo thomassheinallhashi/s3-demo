@@ -51,7 +51,6 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ---- v2 syntax (works on v2, BREAKS on v3+) ----
 resource "aws_lb_listener_rule" "host_rule" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 10
@@ -61,8 +60,10 @@ resource "aws_lb_listener_rule" "host_rule" {
     target_group_arn = aws_lb_target_group.demo.arn
   }
 
+  # v3+ schema
   condition {
-    field  = "host-header"
-    values = ["app.example.com"]
+    host_header {
+      values = ["app.example.com"]
+    }
   }
 }
