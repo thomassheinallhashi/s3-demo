@@ -2,11 +2,9 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
+# v2.x uses aws_subnet_ids (plural data source arrived later)
+data "aws_subnet_ids" "default" {
+  vpc_id = data.aws_vpc.default.id
 }
 
 resource "aws_security_group" "alb" {
@@ -20,7 +18,6 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -34,7 +31,7 @@ resource "aws_lb" "demo" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = data.aws_subnets.default.ids
+  subnets            = data.aws_subnet_ids.default.ids
 }
 
 resource "aws_lb_target_group" "demo" {
@@ -54,7 +51,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# v3-style condition (THIS is what will break after upgrade)
+# ---- v2 syntax (works on v2, BREAKS on v3+) ----
 resource "aws_lb_listener_rule" "host_rule" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 10
